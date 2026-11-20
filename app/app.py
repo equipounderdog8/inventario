@@ -162,7 +162,7 @@ def platillo_cocinar(id_platillo):
             else:
                 flash("No hay suficientes ingredientes para ese platillo!", "error")
     except pymysql.err.IntegrityError:
-        flash("Ya existe un ingrediente o platillo como ese.", "error")
+        flash("Error de MySQL.", "error")
 
 def checar_disponibilidad(receta):
     with conectar() as cx, cx.cursor() as cur:
@@ -173,7 +173,7 @@ def checar_disponibilidad(receta):
         return all(alldispo)
 
 def checar_dispo_todos():
-    with conectar() as cx, cx.cursor as cur:
+    with conectar() as cx, cx.cursor() as cur:
         cur.execute("SELECT * FROM platillos")
         for p in cur.fetchall():
             cur.execute("SELECT * FROM necesita WHERE platillo=%s", (p["id_pla"],))
