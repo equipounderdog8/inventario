@@ -2,7 +2,7 @@
 {% block contenido %}
 <div class="tarjeta">
   <div class="barra">
-    <h2 style="margin:0">platillos registrados ({{ platillos|length }})</h2>
+    <h2 style="margin:0">platillos registrados ({{ platillos|length + 1}})</h2>
     <a class="btn" href="{{ url_for('platillo_nuevo') }}">+ Registrar platillo</a>
   </div>
   <div class="tabla-scroll">
@@ -38,7 +38,7 @@
 </div>
 <div class="tarjeta">
   <div class="barra">
-    <h2 style="margin:0">ingredientes registrados ({{ ingredientes|length }})</h2>
+    <h2 style="margin:0">ingredientes registrados ({{ ingredientes|length + 1}})</h2>
     <a class="btn" href="{{ url_for('ingrediente_nuevo') }}">+ Registrar ingrediente</a>
   </div>
   <div class="tabla-scroll">

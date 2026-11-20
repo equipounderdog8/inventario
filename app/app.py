@@ -169,7 +169,7 @@ def checar_disponibilidad(receta):
         alldispo = []
         for i in receta:
             cur.execute("SELECT * FROM ingredientes i WHERE i.id_ing = %s", (i["ingrediente"],))
-            alldispo.append(cur.fetchone()["cantidad"] >= i["cantidad"])
+            alldispo.append(float(cur.fetchone()["cantidad"]) >= float(i["cantidad"]))
         return all(alldispo)
 
 def checar_dispo_todos():
@@ -251,7 +251,7 @@ def ingrediente_cantidad(id_ingrediente):
         if faltantes:
             flash("Todos los campos son obligatorios.", "error")
             return render_template("formulario_ing_cantidad.html", datos=datos, titulo="Gestionar cantidad de ingrediente")
-        if ingrediente["cantidad"] + datos["adicion"] * datos["cantidad"] < 0:
+        if float(ingrediente["cantidad"]) + (float(datos["adicion"]) * float(datos["cantidad"])) < 0:
             flash("Se esta quitando mas del ingrediente que existe actualmente.", "error")
             return render_template("formulario_ing_cantidad.html", datos=datos, titulo="Gestionar cantidad de ingrediente")
         try:
