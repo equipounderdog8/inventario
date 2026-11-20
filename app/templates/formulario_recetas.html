@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block contenido %}
+<div class="tarjeta" style="max-width:600px;margin:auto">
+  <h2 style="margin-top:0">{{ titulo }}</h2>
+  <form method="post">
+    <div class="campo">
+      <label for="platillo">Platillo</label>
+      <select id="platillo" name="platillo" required>
+        {% for p in platillos %}<option value="{{ p.id_pla }}" {% if receta.platillo == p.id_pla %}selected{% endif %}>{{ p.titulo }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="campo">
+      <label for="ingrediente">Ingrediente</label>
+      <select id="ingrediente" name="ingrediente" required>
+        {% for i in ingredientes %}<option value="{{ i.id_ing }}" {% if receta.ingrediente == i.id_ing %}selected{% endif %}>{{ i.nombre }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="campo">
+      <label for="cantidad">Cantidad del ingrediente</label>
+      <input id="cantidad" name="cantidad" maxlength="100" value="{{ receta.cantidad or '' }}" required>
+    </div>
+    <button class="btn" type="submit">Guardar</button>
+    <a class="btn sec" href="{{ url_for('inicio') }}">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

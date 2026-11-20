@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block contenido %}
+<div class="tarjeta">
+  <div class="barra">
+    <h2 style="margin:0">platillos registrados ({{ platillos|length }})</h2>
+    <a class="btn" href="{{ url_for('platillo_nuevo') }}">+ Registrar platillo</a>
+  </div>
+  <div class="tabla-scroll">
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Nombre</th><th>Descripción</th><th>Tipo</th><th>Precio</th><th>Disponibilidad</th><th>Acciones</th></tr>
+    </thead>
+    <tbody>
+    {% for p in platillos %}
+      <tr>
+        <td>{{ p.id_pla }}</td>
+        <td>{{ p.titulo }}</td>
+        <td>{{ p.descripcion }}</td>
+        <td>{{ p.tipo }}</td>
+        <td>{{ p.precio }}</td>
+        <td>{{ p.dispo }}</td>
+        <td class="acciones">
+          <a class="btn chico sec" href="{{ url_for('platillo_editar', id_platillo=p.id_pla) }}">Editar</a>
+          <form method="post" action="{{ url_for('platillo_eliminar', id_platillo=p.id_pla) }}">
+            <button class="btn chico peligro" type="submit">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="8">No hay platillos registrados.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+<div class="tarjeta">
+  <div class="barra">
+    <h2 style="margin:0">ingredientes registrados ({{ ingredientes|length }})</h2>
+    <a class="btn" href="{{ url_for('ingrediente_nuevo') }}">+ Registrar ingrediente</a>
+  </div>
+  <div class="tabla-scroll">
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Nombre</th><th>Proporción</th><th>Cantidad</th><th>Acciones</th></tr>
+    </thead>
+    <tbody>
+    {% for i in ingredientes %}
+      <tr>
+        <td>{{ i.id_ing }}</td>
+        <td>{{ i.nombre }}</td>
+        <td>{{ i.proporcion }}</td>
+        <td>{{ i.cantidad }}</td>
+        <td class="acciones">
+          <a class="btn chico sec" href="{{ url_for('ingrediente_editar', id_ingrediente=i.id_ing) }}">Editar</a>
+          <form method="post" action="{{ url_for('ingrediente_eliminar', id_ingrediente=i.id_ing) }}">
+            <button class="btn chico peligro" type="submit">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="8">No hay ingredientes registrados.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+  <div class="tarjeta">
+  <div class="barra">
+    <h2 style="margin:0">recetas registrados ({{ necesita|length }})</h2>
+    <a class="btn" href="{{ url_for('receta_nuevo') }}">+ Registrar receta</a>
+  </div>
+  <div class="tabla-scroll">
+  <table>
+    <thead>
+      <tr><th>-Platillo</th><th>Ingrediente</th><th>Cantidad del ingrediente Usada</th><th>Acciones</th></tr>
+    </thead>
+    <tbody>
+    {% for r in necesita %}
+      <tr>
+        <td>{{ r.platillo }}</td>
+        <td>{{ r.ingrediente }}</td>
+        <td>{{ r.cantidad }}</td>
+        <td class="acciones">
+          <a class="btn chico sec" href="{{ url_for('receta_editar', platillo=r.id_pla, ingrediente=r.id_ing) }}">Editar</a>
+          <form method="post" action="{{ url_for('receta_eliminar', platillo=r.id_pla, ingrediente=r.id_ing) }}">
+            <button class="btn chico peligro" type="submit">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="8">No hay recetas registradas.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block contenido %}
+<div class="tarjeta" style="max-width:600px;margin:auto">
+  <h2 style="margin-top:0">{{ titulo }}</h2>
+  <form method="post">
+    <div class="campo">
+      <label for="titulo">Nombre del platillo</label>
+      <input id="titulo" name="titulo" maxlength="40" value="{{ platillo.titulo or '' }}" required>
+    </div>
+    <div class="campo">
+      <label for="descripcion">Descripción</label>
+      <input id="descripcion" name="descripcion" maxlength="255" value="{{ platillo.descripcion or '' }}" required>
+    </div>
+    <div class="campo">
+      <label for="tipo">Tipo</label>
+      <select id="tipo" name="tipo" required>
+        {% for t in tipos %}<option {% if platillo.tipo == t %}selected{% endif %}>{{ t }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="campo">
+      <label for="precio">Precio</label>
+      <input id="precio" name="precio" maxlength="10" value="{{ platillo.precio or '' }}" required>
+    </div>
+    <div class="campo">
+      <label for="dispo">Disponibilidad</label>
+      <select id="dispo" name="dispo" required>
+        <option value="1" {% if platillo.dispo == 1 %}selected{% endif %}>Disponible</option>
+        <option value="0" {% if platillo.dispo == 0 %}selected{% endif %}>No Disponible</option>
+      </select>
+    </div>
+    <button class="btn" type="submit">Guardar</button>
+    <a class="btn sec" href="{{ url_for('inicio') }}">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

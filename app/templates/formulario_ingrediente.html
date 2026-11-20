@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block contenido %}
+<div class="tarjeta" style="max-width:600px;margin:auto">
+  <h2 style="margin-top:0">{{ titulo }}</h2>
+  <form method="post">
+    <div class="campo">
+      <label for="nombre">Nombre del ingrediente</label>
+      <input id="nombre" name="nombre" maxlength="25" value="{{ ingrediente.nombre or '' }}" required>
+    </div>
+    <div class="campo">
+      <label for="proporcion">Proporción del ingrediente (ej; una tortilla, 1 litro de leche, etc)</label>
+      <input id="proporcion" name="proporcion" maxlength="25" value="{{ ingrediente.proporcion or '' }}" required>
+    </div>
+    <div class="campo">
+      <label for="cantidad">Cantidad total del ingrediente (basada en la proporción)</label>
+      <input id="cantidad" name="cantidad" maxlength="25" value="{{ ingrediente.cantidad or '' }}" required>
+    </div>
+    <button class="btn" type="submit">Guardar</button>
+    <a class="btn sec" href="{{ url_for('inicio') }}">Cancelar</a>
+  </form>
+</div>
+{% endblock %}
