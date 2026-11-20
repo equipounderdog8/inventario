@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block contenido %}
+<div class="tarjeta" style="max-width:600px;margin:auto">
+  <h2 style="margin-top:0">{{ titulo }}</h2>
+  <form method="post">
+    <div class="campo">
+      <label for="cantidad">Cantidad a cambiar</label>
+      <input id="cantidad" name="cantidad" maxlength="" value="{{ datos.cantidad or '' }}" required>
+    </div>
+    <div class="campo">
+      <label for="adicion">¿Se esta añadiendo o restando?</label>
+      <select id="adicion" name="adicion" required>
+        <option value="1" {% if datos.adicion == 1 %}selected{% endif %}>Añadiendo</option>
+        <option value="-1" {% if datos.adicion == -1 %}selected{% endif %}>Restando</option>
+      </select>
+    </div>
+    <button class="btn" type="submit">Guardar</button>
+    <a class="btn sec" href="{{ url_for('inicio') }}">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

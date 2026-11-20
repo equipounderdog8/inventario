@@ -77,15 +77,15 @@ def menu():
         platillos = cur.fetchall()
     return render_template("menu.html", categorias=categorias, platillos=platillos)
 
-def leer_formulario(opcion): #0 = platillos, 1 = ingredientes, 2 = necesita
-    datos = {campo: request.form.get(campo, "").strip() for campo in CAMPOS[opcion]}
+def leer_formulario(campos):
+    datos = {campo: request.form.get(campo, "").strip() for campo in campos}
     faltantes = [c for c, v in datos.items() if not v]
     return datos, faltantes
 
 @app.route("/platillo/nuevo", methods=["GET", "POST"])
 def platillo_nuevo():
     if request.method == "POST":
-        datos, faltantes = leer_formulario(0)
+        datos, faltantes = leer_formulario(CAMPOS[0])
         if faltantes:
             flash("Todos los campos son obligatorios.", "error")
             return render_template("formulario.html", platillo=datos, tipos=opciones_enum("tipo"), titulo="Registrar platillo")
@@ -107,7 +107,7 @@ def platillo_nuevo():
 @app.route("/platillo/editar/<int:id_platillo>", methods=["GET", "POST"])
 def platillo_editar(id_platillo):
     if request.method == "POST":
-        datos, faltantes = leer_formulario(0)
+        datos, faltantes = leer_formulario(CAMPOS[0])
         datos["id_pla"] = id_platillo
         if faltantes:
             flash("Todos los campos son obligatorios.", "error")
@@ -141,10 +141,50 @@ def platillo_eliminar(id_platillo):
     flash("Platillo eliminado.", "ok")
     return redirect(url_for("inicio"))
 
+@app.route("/platillo/cocinar/<int:id_platillo>", methods=["POST"])
+def cocinar(id_platillo):
+    try:
+        with conectar() as cx, cx.cursor() as cur:
+            cur.execute("SELECT * FROM platillos WHERE id_pla=%s", (id_platillo,))
+            if cur.fetchone()["dispo"] == 1:
+                cur.execute("SELECT * FROM necesita WHERE platillo=%s", (id_platillo,))
+                receta = cur.fetchall() 
+                if checar_disponibilidad(receta):
+                    for i in receta:
+                        cur.execute("UPDATE ingredientes SET cantidad = (cantidad - %(cantidad)s) WHERE %(ingrediente)s", i,)
+                        cx.commit()
+                    flash("Se restaron los ingredientes utilizados.", "ok")
+                    checar_dispo_todos()
+                else:
+                    flash("No hay suficientes ingredientes para ese platillo!", "error")
+                    cur.execute("UPDATE platillos SET dispo = 0 WHERE id_pla=%s", (id_platillo,))
+                    cx.commit()
+            else:
+                flash("No hay suficientes ingredientes para ese platillo!", "error")
+    except pymysql.err.IntegrityError:
+        flash("Ya existe un ingrediente o platillo como ese.", "error")
+
+def checar_disponibilidad(receta):
+    with conectar() as cx, cx.cursor() as cur:
+        alldispo = []
+        for i in receta:
+            cur.execute("SELECT * FROM ingredientes i WHERE i.id_ing = %s", (i["ingrediente"],))
+            alldispo.append(cur.fetchone()["cantidad"] >= i["cantidad"])
+        return all(alldispo)
+
+def checar_dispo_todos():
+    with conectar() as cx, cx.cursor as cur:
+        cur.execute("SELECT * FROM platillos")
+        for p in cur.fetchall():
+            cur.execute("SELECT * FROM necesita WHERE platillo=%s", (p["id_pla"],))
+            if not checar_disponibilidad(cur.fetchall()):
+                cur.execute("UPDATE platillos SET dispo = 0 WHERE id_pla=%s", (p["id_pla"],))
+                cx.commit()
+
 @app.route("/ingrediente/nuevo", methods=["GET", "POST"])
 def ingrediente_nuevo():
     if request.method == "POST":
-        datos, faltantes = leer_formulario(1)
+        datos, faltantes = leer_formulario(CAMPOS[1])
         if faltantes:
             flash("Todos los campos son obligatorios.", "error")
             return render_template("formulario_ingrediente.html", ingrediente=datos, titulo="Registrar ingrediente")
@@ -166,7 +206,7 @@ def ingrediente_nuevo():
 @app.route("/ingrediente/editar/<int:id_ingrediente>", methods=["GET", "POST"])
 def ingrediente_editar(id_ingrediente):
     if request.method == "POST":
-        datos, faltantes = leer_formulario(1)
+        datos, faltantes = leer_formulario(CAMPOS[1])
         datos["id_ing"] = id_ingrediente
         if faltantes:
             flash("Todos los campos son obligatorios.", "error")
@@ -178,6 +218,7 @@ def ingrediente_editar(id_ingrediente):
                     datos,
                     )
                 cx.commit()
+                checar_dispo_todos()
         except pymysql.err.IntegrityError:
             flash("Ya existe un ingrediente como ese.", "error")
             return render_template("formulario_ingrediente.html", ingrediente=datos, titulo="Editar ingrediente")
@@ -199,6 +240,37 @@ def ingrediente_eliminar(id_ingrediente):
     flash("Ingrediente eliminado.", "ok")
     return redirect(url_for("inicio"))
 
+@app.route("/ingrediente/cantidad/<int:id_ingrediente>", methods=["GET", "POST"])
+def ingrediente_cantidad(id_ingrediente):
+    with conectar() as cx, cx.cursor() as cur:
+        cur.execute("SELECT * FROM ingredientes WHERE id_ing=%s", (id_ingrediente,))
+        ingrediente = cur.fetchone()
+    if request.method == "POST":
+        datos, faltantes = leer_formulario(["cantidad", "adicion"])
+        datos["id_ing"] = id_ingrediente
+        if faltantes:
+            flash("Todos los campos son obligatorios.", "error")
+            return render_template("formulario_ing_cantidad.html", datos=datos, titulo="Gestionar cantidad de ingrediente")
+        if ingrediente["cantidad"] + datos["adicion"] * datos["cantidad"] < 0:
+            flash("Se esta quitando mas del ingrediente que existe actualmente.", "error")
+            return render_template("formulario_ing_cantidad.html", datos=datos, titulo="Gestionar cantidad de ingrediente")
+        try:
+            with conectar() as cx, cx.cursor() as cur:
+                cantidad = ingrediente["cantidad"] + (datos["adicion"] * datos["cantidad"])
+                cur.execute("UPDATE ingredientes SET cantidad=%s WHERE id_ing=%s", (cantidad, id_ingrediente,))
+                cx.commit()
+                checar_dispo_todos()
+        except pymysql.err.IntegrityError:
+            flash("Operación imposible.", "error")
+            return render_template("formulario_ing_cantidad.html", datos=datos, titulo="Gestionar cantidad de ingrediente")
+        flash("Platillo actualizado.", "ok")
+        return redirect(url_for("inicio"))
+    if not ingrediente:
+        flash("El ingrediente no existe.", "error")
+        return redirect(url_for("inicio"))
+    return render_template("formulario_ing_cantidad.html", datos={}, titulo="Gestionar cantidad de ingrediente")
+
+
 @app.route("/receta/nuevo", methods=["GET", "POST"])
 def receta_nuevo():
     with conectar() as cx, cx.cursor() as cur:
@@ -207,7 +279,7 @@ def receta_nuevo():
         cur.execute("SELECT * FROM ingredientes")
         ingredientes = cur.fetchall()
     if request.method == "POST":
-        datos, faltantes = leer_formulario(2)
+        datos, faltantes = leer_formulario(CAMPOS[2])
         if faltantes:
             flash("Todos los campos son obligatorios.", "error")
             return render_template("formulario_recetas.html", receta=datos, platillos=platillos,ingredientes=ingredientes, titulo="Registrar receta")
@@ -234,7 +306,7 @@ def receta_editar(platillo, ingrediente):
         cur.execute("SELECT * FROM ingredientes")
         ingredientes = cur.fetchall()
     if request.method == "POST":
-        datos, faltantes = leer_formulario(2)
+        datos, faltantes = leer_formulario(CAMPOS[2])
         datos["platillo"] = platillo
         datos["ingrediente"] = ingrediente
         if faltantes:

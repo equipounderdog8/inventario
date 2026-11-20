@@ -8,7 +8,7 @@
   <div class="tabla-scroll">
   <table>
     <thead>
-      <tr><th>ID</th><th>Nombre</th><th>Descripción</th><th>Tipo</th><th>Precio</th><th>Disponibilidad</th><th>Acciones</th></tr>
+      <tr><th>ID</th><th>Nombre</th><th>Descripción</th><th>Tipo</th><th>Precio</th><th>Disponibilidad</th><th>Acciones</th><th>Acciones Especiales</th></tr>
     </thead>
     <tbody>
     {% for p in platillos %}
@@ -24,6 +24,9 @@
           <form method="post" action="{{ url_for('platillo_eliminar', id_platillo=p.id_pla) }}">
             <button class="btn chico peligro" type="submit">Eliminar</button>
           </form>
+        </td>
+        <td class="acciones">
+          <a class="btn chico sec" href="{{ url_for('platillo_cocinar', id_platillo=p.id_pla) }}">Cocinar</a>
         </td>
       </tr>
     {% else %}
@@ -41,7 +44,7 @@
   <div class="tabla-scroll">
   <table>
     <thead>
-      <tr><th>ID</th><th>Nombre</th><th>Proporción</th><th>Cantidad</th><th>Acciones</th></tr>
+      <tr><th>ID</th><th>Nombre</th><th>Proporción</th><th>Cantidad</th><th>Acciones</th><th>Acciones Especiales</th></tr>
     </thead>
     <tbody>
     {% for i in ingredientes %}
@@ -55,6 +58,9 @@
           <form method="post" action="{{ url_for('ingrediente_eliminar', id_ingrediente=i.id_ing) }}">
             <button class="btn chico peligro" type="submit">Eliminar</button>
           </form>
+        </td>
+        <td class="acciones">
+          <a class="btn chico sec" href="{{ url_for('ingrediente_cantidad', id_ingrediente=i.id_ing) }}">Gestionar Cantidad</a>
         </td>
       </tr>
     {% else %}
