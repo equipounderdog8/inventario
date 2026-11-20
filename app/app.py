@@ -256,7 +256,7 @@ def ingrediente_cantidad(id_ingrediente):
             return render_template("formulario_ing_cantidad.html", datos=datos, titulo="Gestionar cantidad de ingrediente")
         try:
             with conectar() as cx, cx.cursor() as cur:
-                cantidad = ingrediente["cantidad"] + (datos["adicion"] * datos["cantidad"])
+                cantidad = float(ingrediente["cantidad"]) + (float(datos["adicion"]) * float(datos["cantidad"]))
                 cur.execute("UPDATE ingredientes SET cantidad=%s WHERE id_ing=%s", (cantidad, id_ingrediente,))
                 cx.commit()
                 checar_dispo_todos()
