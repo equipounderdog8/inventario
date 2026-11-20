@@ -155,14 +155,18 @@ def platillo_cocinar(id_platillo):
                     cx.commit()
                     flash("Se restaron los ingredientes utilizados.", "ok")
                     checar_dispo_todos()
+                    return redirect(url_for("inicio"))
                 else:
                     flash("No hay suficientes ingredientes para ese platillo!", "error")
                     cur.execute("UPDATE platillos SET dispo = 0 WHERE id_pla=%s", (id_platillo,))
                     cx.commit()
+                    return redirect(url_for("inicio"))
             else:
                 flash("No hay suficientes ingredientes para ese platillo!", "error")
+                return redirect(url_for("inicio"))
     except pymysql.err.IntegrityError:
         flash("Error de MySQL.", "error")
+        return redirect(url_for("inicio"))
 
 def checar_disponibilidad(receta):
     with conectar() as cx, cx.cursor() as cur:
