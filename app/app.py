@@ -142,7 +142,7 @@ def platillo_eliminar(id_platillo):
     return redirect(url_for("inicio"))
 
 @app.route("/platillo/cocinar/<int:id_platillo>", methods=["POST"])
-def cocinar(id_platillo):
+def platillo_cocinar(id_platillo):
     try:
         with conectar() as cx, cx.cursor() as cur:
             cur.execute("SELECT * FROM platillos WHERE id_pla=%s", (id_platillo,))
