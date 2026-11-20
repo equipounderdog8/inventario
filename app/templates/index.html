@@ -26,7 +26,9 @@
           </form>
         </td>
         <td>
-          <a class="btn chico sec" href="{{ url_for('platillo_cocinar', id_platillo=p.id_pla) }}">Cocinar</a>
+          <form method="post" action="{{ url_for('platillo_cocinar', id_platillo=p.id_pla) }}">
+            <button class="btn chico sec" type="submit">Cocinar</button>
+          </form>
         </td>
       </tr>
     {% else %}

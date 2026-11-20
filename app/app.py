@@ -141,7 +141,7 @@ def platillo_eliminar(id_platillo):
     flash("Platillo eliminado.", "ok")
     return redirect(url_for("inicio"))
 
-@app.route("/platillo/cocinar/<int:id_platillo>", methods=["POST", "GET", "PATCH"])
+@app.route("/platillo/cocinar/<int:id_platillo>", methods=["POST"])
 def platillo_cocinar(id_platillo):
     try:
         with conectar() as cx, cx.cursor() as cur:
@@ -151,8 +151,8 @@ def platillo_cocinar(id_platillo):
                 receta = cur.fetchall() 
                 if checar_disponibilidad(receta):
                     for i in receta:
-                        cur.execute("UPDATE ingredientes SET cantidad = (cantidad - %(cantidad)s) WHERE %(ingrediente)s", i,)
-                        cx.commit()
+                        cur.execute("UPDATE ingredientes SET cantidad = cantidad - %(cantidad)s WHERE id_ing=%(ingrediente)s", i,)
+                    cx.commit()
                     flash("Se restaron los ingredientes utilizados.", "ok")
                     checar_dispo_todos()
                 else:
