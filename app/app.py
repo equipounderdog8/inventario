@@ -141,7 +141,7 @@ def platillo_eliminar(id_platillo):
     flash("Platillo eliminado.", "ok")
     return redirect(url_for("inicio"))
 
-@app.route("/platillo/cocinar/<int:id_platillo>", methods=["POST"])
+@app.route("/platillo/cocinar/<int:id_platillo>", methods=["POST", "GET", "PATCH"])
 def platillo_cocinar(id_platillo):
     try:
         with conectar() as cx, cx.cursor() as cur:
